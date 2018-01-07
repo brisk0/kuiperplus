@@ -134,6 +134,11 @@ poly_in_poly(int x1, int y1, int count1, struct Point *poly1, int x2, int y2, in
 			return true;
 		}
 	}
+	for(int i = 0; i < count2; i++) {
+		if(point_in_poly(poly2[i].x + x2 - x1, poly2[i].y + y2 - y1, count1, poly1)) {
+			return true;
+		}
+	}
 	return false;
 }
 
