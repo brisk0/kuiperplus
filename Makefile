@@ -1,5 +1,6 @@
 FILENAME=kuiper
-SRCNAME=kuiper.c
+SRCNAME=kuiper.c\
+		text.c
 STD=gnu11
 
 all: $(FILENAME)

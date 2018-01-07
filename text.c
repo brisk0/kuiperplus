@@ -1,31 +1,18 @@
-#include <SDL2/SDL_image.h>
-#include <stdbool.h>
+#include "text.h"
 
-SDL_Texture * font_small;
-SDL_Texture * font_medium;
-SDL_Texture * font_large;
-
-enum Align {
-	left,
-	right,
-	center
-};
-
-enum AlignVert {
-	top,
-	bottom,
-	middle
-};
-
-enum FontSize {
-	small = 8,
-	medium = 16,
-	large = 32
-};
+static SDL_Texture * font_small;
+static SDL_Texture * font_medium;
+static SDL_Texture * font_large;
 
 //Must be used before text drawing functions or you will segfault probably.
-bool
+void
 load_fonts(SDL_Renderer *renderer) {
+	static bool fonts_loaded = false;
+
+	if(fonts_loaded) {
+		return;
+	}
+
 	bool success = true;
 	IMG_Init(IMG_INIT_PNG);
 	if(!(font_small = IMG_LoadTexture(renderer, "font_small.png"))) {
@@ -35,11 +22,21 @@ load_fonts(SDL_Renderer *renderer) {
 		success = false;
 	}
 		IMG_Quit();
-		return success;
+		fonts_loaded = success;
+
+		if(!success) {
+			fprintf(stderr, "Failed to load fonts; Aborted");
+			exit(EXIT_FAILURE);
+		}
 }
 
+// Writes a string to the screen using a position anchor and alignment descriptions.
+// Currently assumes fonts are square, font size is pixel size.
 void
 draw_string(SDL_Renderer * renderer, char * string, int x, int y, enum FontSize font_size, enum Align align, enum AlignVert align_vert) {
+
+	load_fonts(renderer);
+
 	SDL_Texture *font;
 	switch(font_size) {
 		case small:

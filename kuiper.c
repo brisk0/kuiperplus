@@ -1,5 +1,5 @@
 #include "control.h"
-#include "text.c"
+#include "text.h"
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_video.h"
@@ -242,11 +242,6 @@ main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	SDL_SetWindowTitle(window, "Kuiper");
-
-	//Text
-	if(!load_fonts(renderer)) {
-		printf("Error! Failed to load fonts: %s", IMG_GetError());
-	}
 
 	//Splash Screen
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
