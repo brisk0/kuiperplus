@@ -1,6 +1,9 @@
 FILENAME=kuiper
 SRCNAME=kuiper.c\
-		text.c
+		text.c\
+		asteroid.c\
+		geom.c\
+		video.c
 STD=gnu11
 
 all: $(FILENAME)
