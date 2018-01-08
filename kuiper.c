@@ -1,44 +1,21 @@
-#include "common.h"
-#include "control.h"
-#include "text.h"
-#include "geom.h"
-#include "asteroid.h"
-#include "video.h"
 #define SDL_MAIN_HANDLED
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_video.h"
-#include "SDL2/SDL_render.h"
-#include "SDL2/SDL_mixer.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <tgmath.h>
 #include <unistd.h>
 
-
-// Ship
-float x;
-float y;
-float vx;
-float vy;
-float rot;
-Vec2 ship_poly[3];
-
-void
-reset_player(){
-	x = SCREEN_WIDTH/2;
-	y = 3*SCREEN_HEIGHT/4;
-	vx = 0;
-	vy = 0;
-	rot = -M_PI/2;
-}
-
-// Bullet
-float bx;
-float by;
-float bvx;
-float bvy;
-bool bullet_exists = false;
+#include "common.h"
+#include "control.h"
+#include "text.h"
+#include "geom.h"
+#include "asteroid.h"
+#include "video.h"
+#include "ship.h"
 
 int score;
 char score_string[1000];
@@ -93,13 +70,6 @@ init() {
 	sound_engine = Mix_LoadWAV("engine.wav");
 	channel_sound_engine = Mix_PlayChannel(-1, sound_engine, -1);
 	Mix_Pause(channel_sound_engine);
-}
-
-void
-construct_ship_poly(Vec2 verts[static 3]) {
-	verts[0] = (Vec2){SHIP_RADIUS*cos(rot), SHIP_RADIUS*sin(rot)};
-	verts[1] = (Vec2){SHIP_RADIUS*cos(rot - 3*M_PI/4), SHIP_RADIUS*sin(rot - 3*M_PI/4)};
-	verts[2] = (Vec2){SHIP_RADIUS*cos(rot + 3*M_PI/4), SHIP_RADIUS*sin(rot + 3*M_PI/4)};
 }
 
 void
@@ -183,14 +153,11 @@ main(int argc, char **argv) {
 								controller_state.down = true;
 								break;
 							case SDLK_SPACE:
-								controller_state.shoot = true;
-								if(!bullet_exists && !event.key.repeat) {
-									bx = x + SHIP_RADIUS*cos(rot);
-									by = y + SHIP_RADIUS*sin(rot);
-									bvx = vx + 2*BASE_SPEED*cos(rot);
-									bvy = vy + 2*BASE_SPEED*sin(rot);
-									bullet_exists = true;
-									Mix_PlayChannel(-1, sound_shoot, 0);
+								if(!event.key.repeat) {
+									controller_state.shoot = true;
+									if(!bullet_exists) {
+										Mix_PlayChannel(-1, sound_shoot, 0);
+									}
 								}
 								break;
 
@@ -223,48 +190,8 @@ main(int argc, char **argv) {
 				}
 			}
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-			//player physics
-			x += vx;
-			y += vy;
-			if(controller_state.up) {
-				vx += ACCEL*cos(rot);
-				vy += ACCEL*sin(rot);
-				float magvel = sqrt(vx*vx + vy*vy);
-				if (magvel > MAX_VEL) {
-					vx = vx/magvel*MAX_VEL;
-					vy = vy/magvel*MAX_VEL;
-				}
-			}
-			if(controller_state.right && !controller_state.left) {
-				rot += ROT_SPEED;
-			} else if (controller_state.left && !controller_state.right) {
-				rot -= ROT_SPEED;
-			}
-			//player wrap
-			if(x > SCREEN_WIDTH + SCREEN_BORDER) {
-				x -= SCREEN_WIDTH + 2*SCREEN_BORDER;
-			} else if(x < -SCREEN_BORDER) {
-				x += SCREEN_WIDTH + 2*SCREEN_BORDER;
-			}
-			if(y > SCREEN_HEIGHT + SCREEN_BORDER) {
-				y -= SCREEN_HEIGHT + 2*SCREEN_BORDER;
-			} else if(y < -SCREEN_BORDER) {
-				y += SCREEN_HEIGHT + 2*SCREEN_BORDER;
-			}
-			construct_ship_poly(ship_poly);
-			draw_poly_offset(x, y, 3, ship_poly);
-
-			//bullet
-			if(bullet_exists){
-				bx += bvx;
-				by += bvy;
-
-				if(bx > SCREEN_WIDTH || bx < 0 || by > SCREEN_HEIGHT || by < 0) {
-					bullet_exists = false;
-				}
-				SDL_RenderDrawPoint(renderer, bx, by);
-			}
+			
+			tick_ships();
 
 			//Asteroids
 			if(!tick_asteroids()) {

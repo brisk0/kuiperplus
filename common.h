@@ -21,23 +21,6 @@ int score;
 #define ACCEL MAX_VEL/60
 #define ROT_SPEED 2*M_PI/60
 
-// The following live in kuiper.c at time of writing
-// =====
-// Ship
-extern float x;
-extern float y;
-extern float vx;
-extern float vy;
-extern float rot;
-extern Vec2 ship_poly[3];
 
-// Bullet
-extern float bx;
-extern float by;
-extern float bvx;
-extern float bvy;
-extern bool bullet_exists;
-// =====
 
-void reset_player(void);
 #endif

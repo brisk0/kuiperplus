@@ -3,7 +3,8 @@ SRCNAME=kuiper.c\
 		text.c\
 		asteroid.c\
 		geom.c\
-		video.c
+		video.c\
+		ship.c
 STD=gnu11
 
 all: $(FILENAME)

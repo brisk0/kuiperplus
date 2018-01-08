@@ -1,4 +1,5 @@
 #include "asteroid.h"
+#include "ship.h"
 
 
 struct Asteroid asteroids [MAX_ASTEROIDS] = {};
@@ -6,6 +7,7 @@ struct Asteroid asteroids [MAX_ASTEROIDS] = {};
 
 void
 draw_asteroid(struct Asteroid a) {
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	draw_poly_offset(a.x, a.y, a.num_vertices, a.vertices);
 }
 
