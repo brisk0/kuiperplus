@@ -3,6 +3,8 @@
 
 #include "geom.h"
 #include "video.h"
+#include "array.h"
+#include "ship.h"
 #include <stdbool.h>
 #include <tgmath.h>
 

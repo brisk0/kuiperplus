@@ -15,6 +15,9 @@ release: win32 *.h *.c
 $(FILENAME): *.h *.c
 	clang $(SRCNAME) -o$(FILENAME) -std=$(STD) -lSDL2 -lSDL2_image -lSDL2_mixer -lm -lz -Wall -O0 -g
 
+array.h: ../klkb-arrays/array.h
+	cp ../klkb-arrays/array.h .
+
 run: $(FILENAME)
 	./$(FILENAME)
 

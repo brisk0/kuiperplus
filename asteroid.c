@@ -1,24 +1,14 @@
 #include "asteroid.h"
-#include "ship.h"
 
 
-struct Asteroid asteroids [MAX_ASTEROIDS] = {};
+// TODO Simple unordered deletion (preferably in the list API)
+Array(struct Asteroid, asteroids);
 
 
 void
 draw_asteroid(struct Asteroid a) {
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	draw_poly_offset(a.x, a.y, a.num_vertices, a.vertices);
-}
-
-void
-add_asteroid(struct Asteroid a) {
-	for(int i = 0; i < MAX_ASTEROIDS; i++) {
-		if(!asteroids[i].exists) {
-			asteroids[i] = a;
-			return;
-		}
-	}
 }
 
 struct Asteroid
@@ -53,52 +43,55 @@ destroy_asteroid(struct Asteroid *a) {
 	a->exists = false;
 	//This is only notequals instead of less than equals because negative asteroids amuse me.
 	if(class != 1) {
-		add_asteroid(gen_asteroid(x, y, class - 1));
-		add_asteroid(gen_asteroid(x, y, class - 1));
+		array_append(asteroids, gen_asteroid(x, y, class - 1));
+		array_append(asteroids, gen_asteroid(x, y, class - 1));
 	}
 	score += 100;
 }
 
 void
 init_asteroids(void) {
-		asteroids[0] = gen_asteroid(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 5);
+		array_reserve(asteroids, 31);
+		array_append(asteroids, gen_asteroid(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 5));
+
 }
 
 // Updates Asteroids and returns the number remaining
 int
 tick_asteroids(void) {
 	int asteroids_remaining = 0;
-	for(int i = 0; i < MAX_ASTEROIDS; i++) {
+	//for(int i = 0; i < MAX_ASTEROIDS; i++) { //foreach
+	forptr(asteroid, asteroids) {
 		//Asteroid Physics
-		if(!asteroids[i].exists) {
+		if(!asteroid->exists) {
 			continue;
 		} else {
 			asteroids_remaining++;
 		}
-		asteroids[i].x += asteroids[i].vx;
-		asteroids[i].y += asteroids[i].vy;
-		if(bullet_exists && point_in_poly(bx - asteroids[i].x, by - asteroids[i].y, asteroids[i].num_vertices, asteroids[i].vertices)) {
-			destroy_asteroid(&asteroids[i]);
+		asteroid->x += asteroid->vx;
+		asteroid->y += asteroid->vy;
+		if(bullet_exists && point_in_poly(bx - asteroid->x, by - asteroid->y, asteroid->num_vertices, asteroid->vertices)) {
+			destroy_asteroid(asteroid);
 			bullet_exists = false;
 		}
-		//Wrap Asteroids. Buffer zone ensures they do teleport whilst still visible
-		float buffer_zone = 2*BASE_RADIUS*1.2*asteroids[i].class;
-		if(asteroids[i].x > SCREEN_WIDTH + buffer_zone) {
-			asteroids[i].x -= SCREEN_WIDTH + 2*buffer_zone;
-		} else if(asteroids[i].x < -buffer_zone) {
-			asteroids[i].x += SCREEN_WIDTH + 2*buffer_zone;
+		//Wrap Asteroids. Buffer zone ensures they don't teleport whilst still visible
+		float buffer_zone = 2*BASE_RADIUS*1.2*asteroid->class;
+		if(asteroid->x > SCREEN_WIDTH + buffer_zone) {
+			asteroid->x -= SCREEN_WIDTH + 2*buffer_zone;
+		} else if(asteroid->x < -buffer_zone) {
+			asteroid->x += SCREEN_WIDTH + 2*buffer_zone;
 		}
-		if(asteroids[i].y > SCREEN_HEIGHT + buffer_zone) {
-			asteroids[i].y -= SCREEN_HEIGHT + 2*buffer_zone;
-		} else if(asteroids[i].y < -buffer_zone) {
-			asteroids[i].y += SCREEN_HEIGHT + 2*buffer_zone;
+		if(asteroid->y > SCREEN_HEIGHT + buffer_zone) {
+			asteroid->y -= SCREEN_HEIGHT + 2*buffer_zone;
+		} else if(asteroid->y < -buffer_zone) {
+			asteroid->y += SCREEN_HEIGHT + 2*buffer_zone;
 		}
-		draw_asteroid(asteroids[i]);
+		draw_asteroid(*asteroid);
 
 		//Check for Player-Asteroid collision
-		if(asteroids[i].exists && poly_in_poly(x, y, 3, ship_poly, asteroids[i].x, asteroids[i].y, asteroids[i].num_vertices, asteroids[i].vertices)) {
+		if(asteroid->exists && poly_in_poly(x, y, 3, ship_poly, asteroid->x, asteroid->y, asteroid->num_vertices, asteroid->vertices)) {
 			reset_player();
-			destroy_asteroid(&asteroids[i]);
+			destroy_asteroid(asteroid);
 			score -= 1000;
 			if(score < 0) {
 				score = 0;
