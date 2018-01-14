@@ -36,11 +36,20 @@ gen_asteroid(int x, int y, int class) {
 }
 
 static void
-destroy_asteroid(struct Asteroid *a) {
-	int class = a->class;
-	int x = a->x;
-	int y = a->y;
-	a->exists = false;
+delete_asteroid_idx(unsigned int i) {
+	asteroids[i] = asteroids[asteroids_count - 1];
+	asteroids_count--;
+}
+
+// Normal in-game destruction
+static void
+destroy_asteroid_idx(unsigned int i) {
+	int class = asteroids[i].class;
+	int x = asteroids[i].x;
+	int y = asteroids[i].y;
+	asteroids[i].exists = false;
+	delete_asteroid_idx(i);
+
 	//This is only notequals instead of less than equals because negative asteroids amuse me.
 	if(class != 1) {
 		array_append(asteroids, gen_asteroid(x, y, class - 1));
@@ -71,7 +80,7 @@ tick_asteroids(void) {
 		asteroid->x += asteroid->vx;
 		asteroid->y += asteroid->vy;
 		if(bullet_exists && point_in_poly(bx - asteroid->x, by - asteroid->y, asteroid->num_vertices, asteroid->vertices)) {
-			destroy_asteroid(asteroid);
+			destroy_asteroid_idx(asteroid_index);
 			bullet_exists = false;
 		}
 		//Wrap Asteroids. Buffer zone ensures they don't teleport whilst still visible
@@ -91,7 +100,7 @@ tick_asteroids(void) {
 		//Check for Player-Asteroid collision
 		if(asteroid->exists && poly_in_poly(x, y, 3, ship_poly, asteroid->x, asteroid->y, asteroid->num_vertices, asteroid->vertices)) {
 			reset_player();
-			destroy_asteroid(asteroid);
+			destroy_asteroid_idx(asteroid_index);
 			score -= 1000;
 			if(score < 0) {
 				score = 0;
