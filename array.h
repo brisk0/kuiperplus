@@ -18,6 +18,13 @@
  *              }
  */
 
+/*
+ * NOTE the slightly more ideal syntax:
+ *     Array(type) name;
+ * is not used as it is incompatible with the indexing syntax
+ *     name[index];
+ */
+
 #ifndef ARRAY_H
 #define ARRAY_H
 
@@ -85,6 +92,10 @@ inline void *array_alloc_(uint32_t *cap, uint32_t *count, uint8_t **data, uint32
 	                             (uint8_t **)&(array), \
 	                             sizeof(*(array))) = elem)
 
+// NOT TO BE USED DIRECTLY (use array_append() macro instead)
+// Function for adding element to an array.
+// Mutates the array pointer and returns the location of the *new element*, to
+// be assigned to.
 __attribute__((always_inline))
 inline void *array_append_(uint32_t *cap, uint32_t *count, uint8_t **data, uint32_t elem_size) {
 	if (*data == NULL) {
