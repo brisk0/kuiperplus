@@ -1,6 +1,7 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+#include <tgmath.h>
 #include <SDL2/SDL_render.h>
 #include "common.h"
 #include "geom.h"
