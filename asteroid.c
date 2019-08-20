@@ -68,20 +68,18 @@ init_asteroids(void) {
 // Updates Asteroids and returns the number remaining
 int
 tick_asteroids(void) {
-	int asteroids_remaining = 0;
 	//for(int i = 0; i < MAX_ASTEROIDS; i++) { //foreach
 	forptr(asteroid, asteroids) {
 		//Asteroid Physics
 		if(!asteroid->exists) {
 			continue;
-		} else {
-			asteroids_remaining++;
 		}
 		asteroid->x += asteroid->vx;
 		asteroid->y += asteroid->vy;
 		if(bullet_exists && point_in_poly(bx - asteroid->x, by - asteroid->y, asteroid->num_vertices, asteroid->vertices)) {
 			destroy_asteroid_idx(asteroid_index);
 			bullet_exists = false;
+			continue;
 		}
 		//Wrap Asteroids. Buffer zone ensures they don't teleport whilst still visible
 		float buffer_zone = 2*BASE_RADIUS*1.2*asteroid->class;
@@ -107,5 +105,5 @@ tick_asteroids(void) {
 			}
 		}
 	}
-	return asteroids_remaining;
+	return asteroids_count;
 }

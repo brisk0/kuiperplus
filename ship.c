@@ -58,10 +58,10 @@ void tick_ships(void) {
 				if(bx > SCREEN_WIDTH || bx < 0 || by > SCREEN_HEIGHT || by < 0) {
 					bullet_exists = false;
 				}
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 				SDL_RenderDrawPoint(renderer, bx, by);
 			}
 
-			
 			if(!bullet_exists && controller_state.shoot) {
 				// Create bullet
 				bx = x + SHIP_RADIUS*cos(rot);

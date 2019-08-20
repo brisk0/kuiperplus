@@ -189,8 +189,7 @@ main(int argc, char **argv) {
 						exit(EXIT_SUCCESS);
 				}
 			}
-			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-			
+
 			tick_ships();
 
 			//Asteroids
